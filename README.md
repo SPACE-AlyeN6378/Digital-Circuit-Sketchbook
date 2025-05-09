@@ -1,1 +1,1 @@
-# Digital Logic Sketchbook 
+# Digital Circuit Sketchbook 
