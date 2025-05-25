@@ -60,4 +60,5 @@ class IOPortGraphics(GraphicsItem):
 
     def add_label(self) -> None:
         self.label.setPos(0, -self.height - 3)
+        self.label.setDefaultTextColor(QColor('black'))
 
