@@ -1,3 +1,5 @@
 *.ghw
 *.vcd
 *.cf
+test.py
+__pycache__/
