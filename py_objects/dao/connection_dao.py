@@ -1,14 +1,16 @@
 from py_objects.dao.dao import DataAccessObject
 from exceptions.object_existence_exception import ObjectExistsException
 from py_objects.signals.wire import Wire
-from py_objects.signals.io_port import IOPort
-
+from py_objects.signals.io_port import IOPort, IOPortAbstract
 
 class ConnectionDAO(DataAccessObject):
 
     def __init__(self) -> None:
         """DAO Constructor"""
-        self.wires: list[Wire] = [] # type: ignore
+        self.wires: list[Wire] = []
+
+    def __len__(self):
+        return len(self.wires)
 
     def search(self, key: str) -> Wire:
         for wire in self.wires:
@@ -47,9 +49,13 @@ class ConnectionDAO(DataAccessObject):
 
 class IOPortDAO(DataAccessObject):
 
-    def __init__(self) -> None:
+    def __init__(self, abstraction: bool=False) -> None:
         """DAO Constructor"""
-        self.ports: list[IOPort] = [] # type: ignore
+        self.ports: list[IOPort] = []
+        self.abstraction = abstraction
+
+    def __len__(self):
+        return len(self.ports)
 
     def search(self, key: str) -> IOPort:
         for port in self.ports:
@@ -62,7 +68,12 @@ class IOPortDAO(DataAccessObject):
         if self.search(name) is not None:
             raise ObjectExistsException(f"An I/O Port with name '{name}' already exists")
         
-        self.ports.append(IOPort(name, bit_size, is_input, scene_x, scene_y))
+        # If a vector object is not allowed
+        if not self.abstraction:
+            self.ports.append(IOPort(name, bit_size, is_input, scene_x, scene_y))
+        else:
+            self.ports.append(IOPortAbstract(name, bit_size, is_input))
+            
 
     def retrieve(self, search_str: str=None, size: int=None) -> list[Wire]:
         if search_str is not None and size is not None:
@@ -80,7 +91,8 @@ class IOPortDAO(DataAccessObject):
     def list_items(self):
         return self.ports
     
+    # TODO: Rename this function from decode_to_vhdl to to_vhdl
     def decode_to_vhdl(self) -> str:
-        """Generates lines of VHDL code for the I/O Port with indentation"""
+        """Generates lines of VHDL code for the I/O Ports with indentation"""
         indentation = max(map(len, [port.name for port in self.ports]))
         return ";\n        ".join([port.decode_to_vhdl(indentation) for port in self.ports])

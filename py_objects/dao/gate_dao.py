@@ -10,6 +10,9 @@ class GateDAO(DataAccessObject):
         """DAO Constructor"""
         self.gates: list[Gate] = [] # type: ignore
 
+    def __len__(self):
+        return len(self.gates)
+
     def search(self, key: int) -> Gate:
         for gate in self.gates:
             if key == gate.id:
