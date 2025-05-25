@@ -39,18 +39,18 @@ class Signal:
         """
         Connects the wire to the source component
         """
+        if self.src is not None and self.src != src:
+            raise ValueError(f"Source already connected to {self.src.name} on port {self.src_port}")
+        
         if isinstance(src, Gate):
             if self.bit_size != 1:
                 raise ValueError("Gates are compatible with single-bit wires/signals")
-            
-            if port_name == "in1": src.connect_input1(self)
-            elif port_name == "in2": src.connect_input2(self)
-            elif port_name == "out": src.connect_output(self)
+        
+        if isinstance(src, Gate):
+            src.connect(self, port_name)
 
-        else:
-            # TODO: connect(): Complete this code here
-            pass
-
+        
+        
         self.src = src
         self.src_port = port_name
 
@@ -59,18 +59,11 @@ class Signal:
         Connects the wire to the destination component
         """
         if isinstance(dest, Gate):
-
             if self.bit_size != 1:
                 raise ValueError("Gates are compatible with single-bit wires/signals")
             
-            if port_name == "in1": dest.connect_input1(self)
-            elif port_name == "in2": dest.connect_input2(self)
-            elif port_name == "out": dest.connect_output(self)
-
-        else:
-            # TODO: connect(): Complete this code here
-            pass
         
+        dest.connect(self, port_name)        
         self.dests.append((dest, port_name))
 
     def connect(self, src: Gate | Component, src_port: str, dest: Gate | Component, dest_port: str) -> None:
