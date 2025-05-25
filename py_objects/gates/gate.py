@@ -21,7 +21,7 @@ class Gate:
         self.id: int = id_
         self.in1: Wire = None
         self.in2: Wire = None
-        self.out: list[Wire | IOPort] = []
+        self.out: Wire | IOPort = []
         self.vector_item: GateGraphics = None
         self.vhdl_op: str = "NULL"
 
@@ -40,20 +40,42 @@ class Gate:
         Checks for any disconnected wires in the gate
         """
         if any(wire is None for wire in [self.in1, self.in2, self.out]):
-            print(f"WARNING! One or more wires are disconnected in gate {self.name}")
+            print(f"WARNING! One or more wires are disconnected in gate {self}")
             return False
         
         return True
     
-    def connect_input1(self, wire: Wire) -> None:
+    def __connect_input1(self, wire: Wire) -> None:
+        if self.in1 is not None:
+            raise IllegalOperationException(f"Input 1 is already connected in gate {self}.")
+        
         self.in1 = wire
     
-    def connect_input2(self, wire: Wire) -> None:
+    def __connect_input2(self, wire: Wire) -> None:
+        if self.in2 is not None:
+            raise IllegalOperationException(f"Input 2 is already connected in gate {self}.")
+        
         self.in2 = wire
 
-    def connect_output(self, wire: Wire | IOPort) -> None:
+    def __connect_output(self, wire: Wire | IOPort) -> None:
         if wire not in self.out:
             self.out.append(wire)
+            
+    def connect(self, wire: Wire, port: str) -> None:
+        """
+        Connects the gate to a wire.
+        If the gate is NOT, it will only connect to input 1.
+        """
+        if port == "in1":
+            self.__connect_input1(wire)
+        elif port == "in2":
+            if self.vhdl_op == "not":
+                raise IllegalOperationException("Input 2 is ignored for NOT Gate, so it's not permitted. Please use Input 1.")
+            self.__connect_input2(wire)
+        elif port == "out":
+            self.__connect_output(wire)
+        else:
+            raise IllegalOperationException(f"Invalid port '{port}' for gate {self.name}. Valid ports are 'in1', 'in2', and 'out'.")
 
     def draw(self, scene: QGraphicsScene) -> None:
             scene.addItem(self.vector_item)

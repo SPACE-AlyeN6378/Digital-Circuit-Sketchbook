@@ -1,4 +1,3 @@
-# TODO: Design the DAO Object here
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -6,7 +5,11 @@ class DataAccessObject(ABC):
     @abstractmethod
     def __init__(self):
         pass
-
+    
+    @abstractmethod
+    def __len__(self):
+        pass
+    
     @abstractmethod
     def search(self, key: str | int):
         pass
@@ -30,12 +33,4 @@ class DataAccessObject(ABC):
     @abstractmethod
     def list_items(self):
         pass
-
-    # @abstractmethod
-    # def load(self):
-    #     pass
-
-    # @abstractmethod
-    # def save(self):
-    #     pass
 

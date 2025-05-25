@@ -1,7 +1,8 @@
 from __future__ import annotations
 from py_objects.dao.gate_dao import GateDAO
-from py_objects.dao.connection_dao import ConnectionDAO, IOPortDAO, IOPort
+from py_objects.dao.connection_dao import ConnectionDAO, IOPortDAO
 from PyQt6.QtWidgets import QGraphicsScene
+import os
 
 from exceptions.object_existence_exception import ObjectExistsException
 
@@ -13,7 +14,6 @@ if TYPE_CHECKING:
 
 class Component:
     def __init__(self, name: str, architecture: str):
-        # TODO: Write a function to open VHDL file and load the inputs and outputs
         self.name: str = name
         self.architecture: str = architecture
         self.gates: GateDAO = GateDAO()
@@ -22,11 +22,22 @@ class Component:
         self.sub_components = []    # TODO: Create a sub-component class
         # self.behavioral_code: str = ""
 
+        # Filename and directory
+        self.filename = ""
+        self.directory = ""
 
-    def create_gate(self, type_: str, scene_x: float=20, scene_y: float=20) -> None:
-        self.gates.create(type_, scene_x, scene_y)
+    def __str__(self):
+        return f"{self.name}: {self.architecture}"
+    
+    def __repr__(self):
+        return str(self)
+    
+    def create_gate(self, type_: str, scene_x: float=20, scene_y: float=20, id_: int = None) -> None:
+        self.gates.create(type_, scene_x, scene_y, id_)
 
-    def retrieve_component(self, key: str | int) -> Gate:
+    def retrieve_object(self, key: str | int):
+        # Import here to avoid circular import
+        from py_objects.gates.gate import Gate
         if self.gates.search(key) is not None:
             return self.gates.search(key)
         
@@ -62,25 +73,25 @@ class Component:
 
         # Connect the wire
         self.connections.search(name).connect(
-            self.retrieve_component(src_key), src_port,
-            self.retrieve_component(dest_key), dest_port
+            self.retrieve_object(src_key), src_port,
+            self.retrieve_object(dest_key), dest_port
         )
 
-    def add_port(self, name: str, bit_size: int, is_input: bool, scene_x: float=20, scene_y: float=20):
+    def add_port(self, name: str, bit_size: int, is_input: bool, scene_x: float=20, scene_y: float=20) -> None:
 
-        # Check for any existing connections
+        # Check for any existing connection names
         if self.connections.search(name) is not None:
             raise ObjectExistsException(f"There's already an connection with name '{name}'. Please try a different one.")
         
         # Create an I/O Port
         self.io_ports.create(name, bit_size, is_input, scene_x, scene_y)
 
-
     def connect_port(self, io_port: str, dest_key: int | str, dest_port: str) -> None:
-        self.io_ports.search(io_port).connect(self.retrieve_component(dest_key), dest_port)
+        self.io_ports.search(io_port).connect(self.retrieve_object(dest_key), dest_port)
 
     def draw_all_internals(self, scene: QGraphicsScene) -> None:
         for gate in self.gates.list_items():
+            
             gate.draw(scene)
 
         for port in self.io_ports.list_items():
@@ -99,6 +110,37 @@ class Component:
             "connections": self.connections.list_items(),
             "io_ports": self.io_ports.list_items()
         }
+
+    def save(self, filename: str) -> None:
+        """Saves the component to a JSON file"""
+        # Import here to avoid circular import
+        from py_objects.components.component_json import ComponentEncoder, json
+        
+        with open(filename, 'w') as file:
+            json.dump(self.export_dict(), file, cls=ComponentEncoder, indent=4)
+
+    @staticmethod
+    def load(filename: str) -> Component:
+        """Loads a component from a JSON file"""
+        # Import here to avoid circular import
+        from py_objects.components.component_json import ComponentDecoder, json
+        
+        with open(filename, 'r') as file:
+            component = json.load(file, cls=ComponentDecoder)
+            component.json_filename = os.path.basename(filename)
+            component.directory = os.path.dirname(filename)
+
+            return component
+        
+        
+    def convert_to_subcomponent(self, name: str) -> None:
+        """Converts the component to a sub-component for another component"""
+        # TODO: Create a sub-component class and take only the name, io_ports and the VHDL filename
+        pass
+        
+
+    
+
 
 
     
