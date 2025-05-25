@@ -121,7 +121,9 @@
                     "in1"
                 ]
             ],
-            "is_input": true
+            "is_input": true,
+            "scene_x": -150.0,
+            "scene_y": 80.0
         },
         {
             "__class__": "IOPort",
@@ -137,7 +139,9 @@
                     "in1"
                 ]
             ],
-            "is_input": true
+            "is_input": true,
+            "scene_x": 0.0,
+            "scene_y": 155.0
         },
         {
             "__class__": "IOPort",
@@ -149,7 +153,9 @@
                     "out"
                 ]
             ],
-            "is_input": false
+            "is_input": false,
+            "scene_x": 520.0,
+            "scene_y": 80.0
         },
         {
             "__class__": "IOPort",
@@ -161,7 +167,9 @@
                     "out"
                 ]
             ],
-            "is_input": false
+            "is_input": false,
+            "scene_x": 520.0,
+            "scene_y": 230.0
         }
     ]
 }
