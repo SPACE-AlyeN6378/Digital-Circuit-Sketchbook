@@ -116,8 +116,19 @@ class Component:
         # Import here to avoid circular import
         from py_objects.components.component_json import ComponentEncoder, json
         
+        # Save the json file
         with open(filename, 'w') as file:
             json.dump(self.export_dict(), file, cls=ComponentEncoder, indent=4)
+
+        self.json_filename = os.path.basename(filename)
+        self.directory = os.path.dirname(filename)
+
+        vhdl_filename = os.path.join(self.directory, f"{self.name}.vhd")
+
+        # Save the VHDL file in the same directory as the JSON file
+        with open(vhdl_filename, 'w') as vhdl_file:
+            vhdl_file.write(self.generate_vhdl_code())
+            
 
     @staticmethod
     def load(filename: str) -> Component:
@@ -131,16 +142,4 @@ class Component:
             component.directory = os.path.dirname(filename)
 
             return component
-        
-        
-    def convert_to_subcomponent(self, name: str) -> None:
-        """Converts the component to a sub-component for another component"""
-        # TODO: Create a sub-component class and take only the name, io_ports and the VHDL filename
-        pass
-        
-
-    
-
-
-
     

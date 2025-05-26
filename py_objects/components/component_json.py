@@ -3,6 +3,7 @@ from py_objects.gates.gate import Gate
 from py_objects.signals.wire import Wire
 from py_objects.signals.io_port import IOPort
 from py_objects.components.component import Component
+from py_objects.components.sub_component import SubComponent
 import json
 
 class ComponentEncoder(json.JSONEncoder):
@@ -65,4 +66,29 @@ class ComponentDecoder(json.JSONDecoder):
                 # Return the component
                 return component
             
+        return obj
+
+
+class SubComponentDecoder(json.JSONDecoder):
+    def __init__(self, *args, **kwargs):
+        super().__init__(object_hook=self.object_hook, *args, **kwargs)
+
+    def object_hook(self, obj):
+        # Check if the object is a dictionary and contains the '__class__' key
+        if '__class__' in obj and obj['__class__'] == 'Component':
+            # Initialize the subcomponent with the label and name
+            # sub_component = Component(obj['name'], None)
+            sub_component = SubComponent("", obj['name'])
+            # sub_component.vhdl_filename = obj.get('vhdl_filename', '') TODO: Handle VHDL filename if needed
+
+            # Add the I/O ports
+            for io_port in obj['io_ports']:
+                sub_component.add_port(
+                    io_port['name'],
+                    io_port['bit_size'],
+                    io_port['is_input']
+                )
+
+            return sub_component
+        
         return obj
