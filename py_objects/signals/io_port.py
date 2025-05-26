@@ -34,6 +34,7 @@ class IOPortAbstract:
 
     def __str__(self):
         """Generates a line of VHDL code for the I/O Port"""
+        # The wire signal is prioritized over I/O Port
         signal = self.mapped_port.name if self.mapped_port is not None else "undefined"
         signal = self.mapped_wire.name if self.mapped_wire is not None else signal
         return f"{self.name} => {signal}"

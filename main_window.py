@@ -28,10 +28,7 @@ class MainWindow(QMainWindow):
         dLatch = Component.load("samples/DLatch.dcs.json")
         dLatch.draw_all_internals(scene)
 
-        print(dLatch.gates.search(4).out)
-        print(dLatch.gates.search(5).out)
-
-
+        dLatch.save("samples/DLatch.dcs.json")
     # def mouseMoveEvent(self, event):
 
     # def mouseReleaseEvent(self, event):
